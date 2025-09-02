@@ -1,12 +1,14 @@
 import express, { Express, Request, Response } from 'express'
-import { PrismaClient, TaskStatus } from '@prisma/client'
+import { TaskStatus } from '@prisma/client'
+import prisma from "./prisma";
 
 const app: Express = express()
 
 app.use(express.json())
 
 app.get('/task', (req: Request, res: Response) => {
-    
+    const tasks = prisma.task.findMany()
+    res.json(tasks)
 })
 
 app.get('/task/:id', (req: Request, res: Response) => {

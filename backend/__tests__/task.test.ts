@@ -2,23 +2,33 @@ import request from 'supertest'
 import express from 'express'
 import app from '../src/app'
 
-const { PrismaClient, TaskStatus } = require('@prisma/client');
+import { PrismaClient, TaskStatus } from '@prisma/client'
 
 
 jest.mock('@prisma/client', () => {
     const mockPrisma = {
-        post: {
+        task: {
             findMany: jest.fn(),
             create: jest.fn(),
             update: jest.fn(),
             delete: jest.fn(),
             findUnique: jest.fn(),
         },
+        $disconnect: jest.fn(),
     };
-    return { PrismaClient: jest.fn(() => mockPrisma) };
+    return { PrismaClient: jest.fn(() => mockPrisma), TaskStatus: { PENDING: 'PENDING', PROGRESS: 'PROGRESS', DONE: 'DONE' } };
 });
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient() as unknown as {
+    task: {
+        findMany: jest.Mock
+        findUnique: jest.Mock
+        create: jest.Mock
+        update: jest.Mock
+        delete: jest.Mock
+    }
+    $disconnect: jest.Mock
+};
 
 describe('Get tasks', () => {
     it('should return all tasks', async () => {
@@ -31,7 +41,7 @@ describe('Get tasks', () => {
         const response = await request(app).get('/task')
 
         expect(response.statusCode).toBe(200)
-        expect(response.body).toBe({tasks: mockTasks})
+        expect(response.body).toEqual({tasks: mockTasks})
     })
 
     it('should return single task', async () => {
@@ -44,7 +54,7 @@ describe('Get tasks', () => {
         const response = await request(app).get('/task/1')
 
         expect(response.statusCode).toBe(200)
-        expect(response.body).toBe(mockTasks[0])
+        expect(response.body).toEqual(mockTasks[0])
     })
 
     it('should return 404 if single task not found', async () => {
@@ -67,7 +77,7 @@ describe('Create tasks', () => {
         const response = await request(app).post('/task').send(postData)
 
         expect(response.statusCode).toBe(201)
-        expect(response.statusCode).toBe(createTask)
+        expect(response.statusCode).toEqual(createTask)
     })
 
     it('should error if missing required field', async () => {
@@ -137,3 +147,7 @@ describe('Delete tasks', () => {
         expect(response.statusCode).toBe(404)
     })
 })
+
+afterAll(async () => {
+    await prisma.$disconnect();
+});
