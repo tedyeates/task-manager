@@ -1,8 +1,9 @@
 import request from 'supertest'
 import express from 'express'
-import router from '../src/index'
+import app from '../src/app'
 
-import { PrismaClient, TaskStatus } from '@prisma/client'
+const { PrismaClient, TaskStatus } = require('@prisma/client');
+
 
 jest.mock('@prisma/client', () => {
     const mockPrisma = {
@@ -16,10 +17,6 @@ jest.mock('@prisma/client', () => {
     };
     return { PrismaClient: jest.fn(() => mockPrisma) };
 });
-
-const app = express();
-app.use(express.json());
-app.use(router);
 
 const prisma = new PrismaClient();
 

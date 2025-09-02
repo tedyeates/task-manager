@@ -1,27 +1,5 @@
-import express, { Express, Request, Response } from 'express'
-
-const app: Express = express()
-const port = 3000
-
-app.get('/task', (req: Request, res: Response) => {
-    
-})
-
-app.get('/task/:id', (req: Request, res: Response) => {
-    const { id } = req.params
-})
-
-app.post('/task', (req: Request, res: Response) => {
-    
-})
-
-app.put('/task/:id', (req: Request, res: Response) => {
-    const { id } = req.params
-})
-
-app.delete('/task/:id', (req: Request, res: Response) => {
-    const { id } = req.params
-})
+import app from "./app";
+const port = 3000;
 
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
