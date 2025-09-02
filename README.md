@@ -8,6 +8,7 @@ Run background and frontend separately
 ```bash
 cd backend
 npm i
+prisma migrate deploy
 npm run dev
 ```
 
