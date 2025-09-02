@@ -19,6 +19,10 @@ app.put('/task/:id', (req: Request, res: Response) => {
     const { id } = req.params
 })
 
+app.delete('/task/:id', (req: Request, res: Response) => {
+    const { id } = req.params
+})
+
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
 });
