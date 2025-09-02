@@ -4,5 +4,5 @@ CREATE TABLE "Task" (
     "title" TEXT NOT NULL,
     "description" TEXT,
     "dueDate" DATETIME,
-    "Status" TEXT NOT NULL DEFAULT 'PENDING'
+    "status" TEXT NOT NULL DEFAULT 'PENDING'
 );

@@ -24,5 +24,5 @@ model Task {
     title       String
     description String?
     dueDate     DateTime?
-    Status      TaskStatus  @default(PENDING)
+    status      TaskStatus  @default(PENDING)
 }

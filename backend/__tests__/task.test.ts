@@ -4,7 +4,6 @@ import app from '../src/app'
 
 import { PrismaClient, TaskStatus } from '@prisma/client'
 
-
 jest.mock('@prisma/client', () => {
     const mockPrisma = {
         task: {
