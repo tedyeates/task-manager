@@ -2,9 +2,16 @@ import express, { Express, Request, Response } from 'express'
 import { TaskStatus } from '@prisma/client'
 import prisma from "./prisma";
 import { isValidDate, isValidStatus } from './utils';
+import cors from 'cors'
+
 
 const app: Express = express()
 
+app.use(cors({
+  origin: 'http://localhost:5173', // React's URL
+  methods: ['GET','POST','PUT','DELETE'], // Allowed HTTP methods
+  credentials: true // if you need cookies/auth
+}))
 app.use(express.json())
 
 app.get('/task', async (req: Request, res: Response) => {
