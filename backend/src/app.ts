@@ -57,7 +57,7 @@ app.post('/task', async (req: Request, res: Response) => {
         return res.status(400).json({ error: "Invalid date format" })
     }
 
-    if (status && isValidStatus(status)) {
+    if (status && !isValidStatus(status)) {
         return res.status(400).json({ error: 'Invalid status format' })
     }
 

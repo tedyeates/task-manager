@@ -6,13 +6,12 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import type { FormDataType } from "../types"
 
 type DataTableProps = {
     headers: string[]
-    rows: {
-        [key: string]: string
-    }[]
-    onClick: () => void
+    rows: FormDataType[]
+    onClick: (row: FormDataType) => void
 }
 
 function DataTable({headers, rows, onClick}: DataTableProps) {
@@ -27,9 +26,9 @@ function DataTable({headers, rows, onClick}: DataTableProps) {
             </TableHeader>
             <TableBody>
                 {rows.map((row, index) => (
-                    <TableRow key={index} onClick={onClick}>
-                        {Object.values(row).map((value) => (
-                            <TableCell>{value}</TableCell>
+                    <TableRow key={index} onClick={() => onClick(row)}>
+                        {Object.values(row).map((value, cellIndex) => (
+                            <TableCell key={cellIndex}>{value}</TableCell>
                         ))}
                     </TableRow>
                 ))}
