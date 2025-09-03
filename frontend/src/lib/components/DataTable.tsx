@@ -12,9 +12,10 @@ type DataTableProps = {
     rows: {
         [key: string]: string
     }[]
+    onClick: () => void
 }
 
-function DataTable({headers, rows}: DataTableProps) {
+function DataTable({headers, rows, onClick}: DataTableProps) {
     return (
         <Table className="table-fixed w-full">
             <TableHeader>
@@ -26,7 +27,7 @@ function DataTable({headers, rows}: DataTableProps) {
             </TableHeader>
             <TableBody>
                 {rows.map((row, index) => (
-                    <TableRow key={index}>
+                    <TableRow key={index} onClick={onClick}>
                         {Object.values(row).map((value) => (
                             <TableCell>{value}</TableCell>
                         ))}
