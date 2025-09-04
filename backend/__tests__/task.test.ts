@@ -2,8 +2,9 @@ import request from 'supertest'
 import express from 'express'
 import app from '../src/app'
 
-import { PrismaClient, TaskStatus } from '@prisma/client'
+import { Prisma, PrismaClient, TaskStatus } from '@prisma/client'
 
+// Mock prisma so I don't need to hit the database
 jest.mock('@prisma/client', () => {
     const mockPrisma = {
         task: {
@@ -14,9 +15,24 @@ jest.mock('@prisma/client', () => {
             findUnique: jest.fn(),
         },
         $disconnect: jest.fn(),
-    };
-    return { PrismaClient: jest.fn(() => mockPrisma), TaskStatus: { PENDING: 'PENDING', PROGRESS: 'PROGRESS', DONE: 'DONE' } };
-});
+    }
+
+    // For mocking prisma 404 error
+    class PrismaClientKnownRequestError extends Error {
+        code: string
+        constructor(message: string, code: string) {
+            super(message)
+            this.code = code; // P2025 is 404
+            this.name = 'PrismaClientKnownRequestError'
+        }
+    }
+
+    return { 
+        PrismaClient: jest.fn(() => mockPrisma), 
+        TaskStatus: { PENDING: 'PENDING', PROGRESS: 'PROGRESS', DONE: 'DONE' },
+        Prisma: { PrismaClientKnownRequestError }
+    }
+})
 
 const prisma = new PrismaClient() as unknown as {
     task: {
@@ -27,7 +43,7 @@ const prisma = new PrismaClient() as unknown as {
         delete: jest.Mock
     }
     $disconnect: jest.Mock
-};
+}
 
 describe('Get tasks', () => {
     it('should return all tasks', async () => {
@@ -68,7 +84,7 @@ describe('Get tasks', () => {
 
 describe('Create tasks', () => {
     it('should create single task', async () => {
-        const postData = {title: 'wake up', description: 'wake up in the morning', dueDate: Date.now()}
+        const postData = {title: 'wake up', description: 'wake up in the morning', dueDate: "2025-12-01"}
         const createTask = { id: 1, ...postData}
 
         prisma.task.create.mockResolvedValue(createTask)
@@ -76,7 +92,7 @@ describe('Create tasks', () => {
         const response = await request(app).post('/task').send(postData)
 
         expect(response.statusCode).toBe(201)
-        expect(response.statusCode).toEqual(createTask)
+        expect(response.body).toEqual(createTask)
     })
 
     it('should error if missing required field', async () => {
@@ -111,7 +127,12 @@ describe('Update tasks', () => {
     it('should 404 if single task not found', async () => {
         const putData = {description: 'wake up in the morning'}
 
-        prisma.task.update.mockResolvedValue(null)
+        // Mock the 404 error returned by prisma
+        prisma.task.update.mockRejectedValue(
+            new (Prisma.PrismaClientKnownRequestError as unknown as {
+                new (message: string, code: string): Error;
+            })('Record not found', 'P2025')
+        )
 
         const response = await request(app).put(`/task/2`).send(putData)
 
@@ -139,7 +160,11 @@ describe('Delete tasks', () => {
     })
 
     it('should 404 if single task not found', async () => {
-        prisma.task.delete.mockResolvedValue(null)
+        prisma.task.delete.mockRejectedValue(
+            new (Prisma.PrismaClientKnownRequestError as unknown as {
+                new (message: string, code: string): Error;
+            })('Record not found', 'P2025')
+        );
 
         const response = await request(app).delete(`/task/2`)
 

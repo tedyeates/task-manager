@@ -61,19 +61,18 @@ app.post('/task', async (req: Request, res: Response) => {
         return res.status(400).json({ error: 'Invalid status format' })
     }
 
-
     try {
         const task = await prisma.task.create({
             data: {
                 title, description,
-                dueDate: new Date(dueDate),
+                dueDate: dueDate ? new Date(dueDate) : undefined,
                 status: status || TaskStatus.PENDING
             }
         })
 
-        res.status(201).json(task)
+        return res.status(201).json(task)
     } catch {
-        res.status(500).json({ error: 'Server error' })
+        return res.status(500).json({ error: 'Server error' })
     }
 })
 
@@ -114,6 +113,7 @@ app.put('/task/:id', async (req: Request, res: Response) => {
 })
 
 app.delete('/task/:id', async (req: Request, res: Response) => {
+    console.log("delete")
     const { id } = req.params
 
     try {

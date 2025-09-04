@@ -11,15 +11,14 @@ function App() {
     const [modalType, setModalType] = useState<"Create" | "Edit">("Create")
     const [modalData, setModalData] = useState<FormDataType | null>(null)
 
+    async function loadData()  {
+        const response = await fetch("http://localhost:3000/task")
+        const data = await response.json()
+        setData(data.tasks)
+    }
 
     useEffect(() => {
-        fetch("http://localhost:3000/task").then(
-            res => res.json()
-        ).then(
-            data => {
-                setData(data.tasks)
-            }
-        )
+        loadData()
     }, [])
 
     return (
@@ -34,7 +33,8 @@ function App() {
                 modalType={modalType} 
                 open={open} 
                 setOpen={setOpen} 
-                modalData={modalData} 
+                modalData={modalData}
+                loadData={loadData}
             />
             {data.length > 0 ? (
                 <DataTable 
@@ -43,6 +43,10 @@ function App() {
                         setModalType("Edit")
                         setModalData(row)
                     }} 
+                    onDelete={async (row) => {
+                        await fetch(`http://localhost:3000/task/${row.id}`, { method: "DELETE" })
+                        loadData()
+                    }}
                     headers={Object.keys(data[0])} 
                     rows={data} 
                 />

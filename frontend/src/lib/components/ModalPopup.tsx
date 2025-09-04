@@ -24,10 +24,11 @@ type ModalPopupType = {
     modalType: "Create" | "Edit"
     open: boolean
     setOpen: (open: boolean) => void,
-    modalData: FormDataType | null
+    modalData: FormDataType | null,
+    loadData: () => void
 }
 
-export function ModalPopup({modalType, open, setOpen, modalData}: ModalPopupType) {
+export function ModalPopup({modalType, open, setOpen, modalData, loadData}: ModalPopupType) {
     const [formData, setFormData] = useState<FormDataType>({
         title: "",
         description: "",
@@ -45,27 +46,23 @@ export function ModalPopup({modalType, open, setOpen, modalData}: ModalPopupType
     }
 
     async function handleCreate(formData: FormDataType) {
-        const response = await fetch("http://localhost:3000/task", {
+        await fetch("http://localhost:3000/task", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(formData),
         })
-
-        console.log(await response.json())
     }
 
     async function handleUpdate(formData: FormDataType) {
-        const response = await fetch(`http://localhost:3000/task/${modalData?.id}`, {
+        await fetch(`http://localhost:3000/task/${modalData?.id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(formData),
         })
-
-        console.log(await response.json())
     }
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -80,6 +77,7 @@ export function ModalPopup({modalType, open, setOpen, modalData}: ModalPopupType
         }
 
         setOpen(false)
+        loadData()
     }
 
     // Reset form if closed
